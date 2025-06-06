@@ -1,181 +1,95 @@
-# feud
+# Feud Discord App (Node.js Edition)
 
-A modern Discord.js app template supporting locales, events, and slash commands.
+A real-time Feud-style Discord game app built with Node.js, discord.js, and MySQL. The app uses AI to judge answers in chat and supports multiple worker nodes for robust gameplay.
 
 ---
 
 ## Features
 
-- **Easy command and event registration**: Just drop files in the right folders.
-- **Locale support**: Add or edit language files in `src/locales/`.
-- **Graceful shutdown and error handling**.
-- **Winston-based logging**.
-- **Environment-based configuration**.
-- **Systemd service template for production deployment**.
+- Real-time Feud gameplay in Discord channels
+- AI-powered answer judging with hints for ambiguous or incorrect answers
+- Automatic player participation without explicit join commands
+- Persistent game state and player stats stored in MySQL
+- Easy command and event handling based on discord.js
+- Graceful shutdown and error handling
+- Optional systemd service for production deployment
+- Localization support for multiple languages
 
 ---
 
-## Getting Started
+## Setup
 
-### 1. Fork this repository
+### 1. Create a Discord Application
 
-It's recommended to [fork](https://github.com/rpurinton/feud/fork) this repo to your own GitHub account before making changes. This allows you to pull upstream updates easily.
+- Go to the [Discord Developer Portal](https://discord.com/developers/applications).
+- Click "New Application" and give it a name.
+- Navigate to "Bot" tab and add a bot user.
+- Copy the **Client ID** and **Bot Token** for use in `.env`.
 
-### 2. Clone your fork
+### 2. Create an OpenAI Project
 
-```sh
-# Replace <your-username> and <your-repo> with your GitHub info
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
-```
+- Visit the [OpenAI Developer Portal](https://platform.openai.com/account/api-keys).
+- Create a new API key.
+- Store the API key securely for use in `.env`.
 
-### 3. Rename for your project
+### 3. Setup MySQL Database
 
-- Rename `feud.mjs` to your app's main file name (e.g., `myapp.mjs`).
-- Rename `feud.service` to match your app (e.g., `myapp.service`).
-- Update `package.json` with your own project name, description, author, and repository info.
-
-### 4. Install dependencies
+- Create a new MySQL database and user with appropriate privileges.
+- Import `questions.sql` from the project root:
 
 ```sh
-npm install
+mysql -u <user> -p <database> < questions.sql
 ```
 
-### 5. Configure environment
+### 4. Configure Environment
 
-Copy `.env.example` to `.env` if it exists, or create a `.env` file with your settings:
+- Copy the example environment file:
 
 ```sh
 cp .env.example .env
 ```
 
-Edit the `.env` file:
+- Edit `.env` with your Discord and OpenAI credentials, database connection info, and other settings.
 
-```env
-DISCORD_TOKEN=your-app-token
-DISCORD_CLIENT_ID=your-client-id
-LOG_LEVEL=info
+### 5. Install Dependencies
+
+```sh
+npm install
 ```
 
-### 6. Run the app
+### 6. (Optional) Run Tests
+
+```sh
+npm test
+```
+
+---
+
+## Running the App
+
+### Without systemd (for development)
 
 ```sh
 node feud.mjs
-# or, if renamed:
-node myapp.mjs
 ```
 
----
+### With systemd (for production)
 
-## Customization
+- Edit the provided `feud.service` file to update paths, user, group, and environment file.
+- Copy the service file:
 
-### Adding Commands
-
-- Place a JSON definition (e.g., `help.json`) in `src/commands/`.
-- Add a handler file with the same name and `.mjs` extension (e.g., `help.mjs`) in the same folder.
-- The handler should export a default async function.
-
-Example: `src/commands/ping.json`
-
-```json
-{
-  "name": "ping",
-  "description": "Replies with Pong!"
-}
+```sh
+sudo cp feud.service /etc/systemd/system/feud.service
 ```
 
-Example: `src/commands/ping.mjs`
+- Reload systemd and enable the service:
 
-```js
-export default async (interaction) => {
-  await interaction.reply('Pong!');
-};
+```sh
+sudo systemctl daemon-reload
+sudo systemctl enable feud.service
+sudo systemctl start feud.service
+sudo systemctl status feud.service
 ```
-
-### Adding Events
-
-- Place a file named after the Discord event (e.g., `messageCreate.mjs`) in `src/events/`.
-- Export a default function that takes the event arguments.
-
-Example: `src/events/messageCreate.mjs`
-
-```js
-export default (message) => {
-  if (message.content === '!hello') {
-    message.reply('Hello!');
-  }
-};
-```
-
-### Locales
-
-- Add or edit JSON files in `src/locales/` (e.g., `en-US.json`, `fr.json`).
-- Each file should export a flat object of key-value pairs.
-- The app loads all locale files at startup and makes them available globally.
-
-### Logging
-
-- Logging is handled by Winston.
-- Set `LOG_LEVEL` in your `.env` (`debug`, `info`, `warn`, `error`).
-
-### Error Handling & Shutdown
-
-- Uncaught exceptions and rejections are logged.
-- Graceful shutdown on `SIGTERM`, `SIGINT`, or `SIGHUP`.
-- The app will attempt to destroy the Discord client cleanly before exiting.
-
----
-
-## Systemd Service Setup
-
-To run your app as a service on Linux, use the provided `feud.service` file.
-
-**Update the paths and names to match your project.**
-
-Example `feud.service`:
-
-```ini
-[Unit]
-Description=feud
-After=network-online.target
-Wants=network-online.target
-StartLimitBurst=3
-StartLimitIntervalSec=60
-
-[Service]
-User=appuser
-Group=appgroup
-RestartSec=5
-Restart=on-failure
-WorkingDirectory=/opt/feud
-ExecStart=/usr/bin/node /opt/feud/feud.mjs
-EnvironmentFile=/opt/feud/.env
-
-[Install]
-WantedBy=multi-user.target
-```
-
-**Instructions:**
-
-1. Copy and rename the service file:
-
-   ```sh
-   sudo cp feud.service /etc/systemd/system/myapp.service
-   ```
-
-2. Edit the service file:
-   - Set `WorkingDirectory` and `ExecStart` to your app's location and main file (use absolute paths).
-   - Set `EnvironmentFile` to your `.env` location.
-   - Change `User` and `Group` to a non-root user for security.
-
-3. Reload systemd and enable the service:
-
-   ```sh
-   sudo systemctl daemon-reload
-   sudo systemctl enable myapp.service
-   sudo systemctl start myapp.service
-   sudo systemctl status myapp.service
-   ```
 
 ---
 
@@ -183,29 +97,35 @@ WantedBy=multi-user.target
 
 ```text
 src/
-  commands/    # Command definitions and handlers
-  events/      # Event handlers
-  locales/     # Locale JSON files
-  *.mjs       # Core logic (commands, events, logging, etc.)
+  commands/    # JSON command definitions and JS handlers
+  events/      # Discord event handlers
+  locales/     # Locale JSON files for translations
+  *.mjs       # Core logic files (app startup, commands, events, AI judge)
+questions.sql  # SQL file with Feud questions and answers
+.env.example  # Sample environment configuration file
+feud.service  # systemd service unit file template
 ```
 
 ---
 
-## Best Practices & Tips
+## Best Practices
 
-- **Keep your app token secret!** Never commit your `.env` file or token to version control.
-- **Use a dedicated, non-root user** for running your app in production.
-- **Regularly pull upstream changes** if you want to keep your fork up to date.
-- **Write tests** for your command and event handlers if your app grows in complexity.
-- **Check Discord.js documentation** for new features and event names: [https://discord.js.org/](https://discord.js.org/)
+- Keep your Discord token, OpenAI API key, and database credentials secure; do not commit `.env` to source control.
+- Use a dedicated non-root user for running the app in production.
+- Regularly back up your MySQL database.
+- Use git branches and pull upstream changes regularly if you fork this repo.
+- Write and run tests as your app functionality grows.
+- Consult the [discord.js documentation](https://discord.js.org/) for up-to-date API usage.
 
 ---
 
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE).
+
+---
 
 ## Developer Support
 
-Email: <russell.purinton@gmail.com>
-Discord: laozi101
+- Email: russell.purinton@gmail.com  
+- Discord: laozi101
