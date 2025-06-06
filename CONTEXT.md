@@ -1,10 +1,8 @@
-@ -0,0 +1,79 @@
-
-# Family Feud Discord Bot - Game Specifications
+# Family Feud Discord Bot - Game Specifications (Node.js Edition)
 
 ## Overview
 
-This Discord bot implements a Family Feud-style game using PHP, MySQL, RabbitMQ, and the discord-php library. The bot is designed for real-time play in Discord channels, with AI-powered question and answer judging.
+This Discord bot implements a Family Feud-style game using Node.js, discord.js, and MySQL. The bot is designed for real-time play in Discord channels, with AI-powered question and answer judging.
 
 ---
 
@@ -38,8 +36,8 @@ This Discord bot implements a Family Feud-style game using PHP, MySQL, RabbitMQ,
   - If no new answers are found after 2 minutes, the game ends automatically.
 
 - **Commands:**
-  - `!feud` — Starts a new game in the channel (if one isn't already running).
-  - `!stats` — Returns user stats (lifetime, top scores, etc.).
+  - `!feud`  Starts a new game in the channel (if one isn't already running).
+  - `!stats`  Returns user stats (lifetime, top scores, etc.).
   - All other messages during a game are treated as answer attempts.
 
 - **Game Display:**
@@ -52,8 +50,8 @@ This Discord bot implements a Family Feud-style game using PHP, MySQL, RabbitMQ,
 
 ## Technical Architecture
 
-- **App.php:** Single instance, handles Discord I/O, shuttles messages via RabbitMQ.
-- **Inbox.php:** Multiple worker instances, each with its own event loop, consuming from the queue and running game logic.
+- **Main Bot:** Single instance built with discord.js, handles Discord I/O.
+- **Workers:** Multiple worker instances process game logic and answer judging.
 - **Game Timer:** Only the worker that processed the last correct answer runs the timer (blocking sleep/check loop). If the worker crashes, the timer is reset by the next correct answer.
 
 ---
@@ -79,3 +77,4 @@ This Discord bot implements a Family Feud-style game using PHP, MySQL, RabbitMQ,
 - No slash commands are used; only `!commands` in chat.
 - The bot is designed for robust, distributed operation with multiple worker nodes.
 - All state and logic are designed for persistence and recovery.
+
