@@ -1,5 +1,4 @@
 import log from '../log.mjs';
-import { getMsg } from '../locales.mjs';
 import { getCurrentDirname } from '../esm-filename.mjs';
 import { readFileSync } from 'fs';
 import { join } from 'path';
