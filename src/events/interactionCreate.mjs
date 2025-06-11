@@ -1,5 +1,4 @@
 import log from '../log.mjs';
-import { getMsg } from '../locales.mjs';
 
 // Event handler for interactionCreate
 export default async function (interaction) {
