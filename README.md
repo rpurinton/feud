@@ -127,5 +127,5 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Developer Support
 
-- Email: russell.purinton@gmail.com  
+- Email: <russell.purinton@gmail.com>  
 - Github & Discord: rpurinton
