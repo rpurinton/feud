@@ -128,4 +128,4 @@ This project is licensed under the [MIT License](LICENSE).
 ## Developer Support
 
 - Email: russell.purinton@gmail.com  
-- Discord: laozi101
+- Github & Discord: rpurinton
